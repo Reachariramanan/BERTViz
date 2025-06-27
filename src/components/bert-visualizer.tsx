@@ -10,18 +10,19 @@ import type { AnalysisResult, NeuronTags, SelectedNeuron, Line } from '@/types';
 import AttentionLayer from './attention-layer';
 import { Sparkles, Zap } from 'lucide-react';
 
-const NUM_LAYERS = 4;
 const TOP_K = 3;
 
-const generateMockData = (sentence: string): AnalysisResult => {
-  const tokens = sentence.trim().split(/\s+/).filter(Boolean);
-  const attention = Array.from({ length: NUM_LAYERS }, () =>
-    Array.from({ length: tokens.length }, () =>
-      Array.from({ length: tokens.length }, () => Math.random())
-    )
-  );
-  return { tokens, attention };
-};
+async function analyzeSentence(sentence: string): Promise<AnalysisResult> {
+  const res = await fetch('http://localhost:8000/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sentence }),
+  });
+  if (!res.ok) {
+    throw new Error('Failed to analyze');
+  }
+  return res.json();
+}
 
 export default function BertVisualizer() {
   const [sentence, setSentence] = useState('BERT helps visualize attention');
@@ -38,12 +39,20 @@ export default function BertVisualizer() {
     cellRefs.current[id] = el;
   }, []);
 
-  const handleAnalyze = () => {
-    const result = generateMockData(sentence);
-    setAnalysisResult(result);
-    setNeuronTags({});
-    setSelectedNeuron(null);
-    setLines([]);
+  const handleAnalyze = async () => {
+    try {
+      const result = await analyzeSentence(sentence);
+      setAnalysisResult(result);
+      setNeuronTags({});
+      setSelectedNeuron(null);
+      setLines([]);
+    } catch (e) {
+      toast({
+        title: "Error",
+        description: "Failed to analyze sentence.",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
@@ -158,8 +167,11 @@ export default function BertVisualizer() {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="layer-0" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
-                {Array.from({ length: NUM_LAYERS }, (_, i) => (
+              <TabsList
+                className="grid w-full"
+                style={{ gridTemplateColumns: `repeat(${analysisResult.attention.length}, minmax(0, 1fr))` }}
+              >
+                {Array.from({ length: analysisResult.attention.length }, (_, i) => (
                   <TabsTrigger key={`tab-trigger-${i}`} value={`layer-${i}`}>
                     Layer {i + 1}
                   </TabsTrigger>

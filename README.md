@@ -34,17 +34,21 @@ Clone the repo and install dependencies:
 git clone https://github.com/Reachariramanan/BERTViz.git
 cd BERTViz
 pip install -r requirements.txt
+npm install
 ````
 
 ---
 
 ## 🖥️ Run the App
 
+Start the Python backend and the Next.js frontend:
+
 ```bash
-streamlit run app.py
+uvicorn app:app --reload
+npm run dev
 ```
 
-This will open the BERTviz Explorer in your browser. Input any sentence and click **Visualize**.
+The backend exposes an `/analyze` endpoint used by the UI to fetch tokens and attention weights.
 
 ---
 
@@ -62,11 +66,10 @@ Layer-wise attention heatmaps showing how each word attends to others across the
 
 ```
 BERTViz/
-├── app.py
+├── app.py             # FastAPI server serving attentions
+├── src/               # Next.js frontend
 ├── readme/
 │   └── image.png
-├── components/
-├── models/
 ├── requirements.txt
 └── README.md
 ```
