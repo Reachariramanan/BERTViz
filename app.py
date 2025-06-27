@@ -1,9 +1,18 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModel
 import torch
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 MODEL_NAME = "answerdotai/ModernBERT-base"
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)

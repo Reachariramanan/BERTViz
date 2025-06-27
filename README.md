@@ -48,6 +48,11 @@ uvicorn app:app --reload
 npm run dev
 ```
 
+The backend allows requests from the frontend via CORS. If you run the
+frontend on another port (like the default Next.js `3000`), make sure the
+backend server is running with CORS enabled so the browser can reach the
+`/analyze` endpoint.
+
 The backend exposes an `/analyze` endpoint used by the UI to fetch tokens and attention weights.
 
 ---
